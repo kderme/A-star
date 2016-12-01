@@ -2,48 +2,16 @@ import java.util.*;
 import java.io.*;
 import java.lang.*;
 import java.math.*;
+import java.io.Reader;
 
 class UsageException extends Exception
 {
    public UsageException()
    {
      super("Usage: java Main [path to input folder]\n"+
-					 "If path is not defined ./TN2016-CW1 is the default input folder\n"+
-					 "Input folder should have:\n client.csv\n nodes.csv\n taxis.csv");
+		"If path is not defined ./TN2016-CW1 is the default input folder\n"+
+		"Input folder should have:\n client.csv\n nodes.csv\n taxis.csv");
    }
-}
-
-class Client{
-	public float x,y;
-
-	Client (float a, float b){
-		x=a;
-		y=b;
-	}
-}
-
-class Taxi{
-	public float x,y;
-	public int id;
-
-	Taxi(float a, float b, int d){
-		x=a;
-		y=b;
-		d=id;
-	}
-}
-
-class Node{
-	public float x,y;
-	public int id;
-	public String name;
-
-	Node(float a, float b, int d,String s){
-		x=a;
-		y=b;
-		d=id;
-		name=s;
-	}
 }
 
 public class Main{
@@ -54,18 +22,7 @@ public class Main{
 	private static ArrayList<Taxi> taxis;
 	private static ArrayList<Node> nodes;
 
-	private static Scanner safe_open(String path) throws UsageException{
-		Scanner sc = null;
-
-  	try { sc = new Scanner(new File(path));}
-  	catch(FileNotFoundException e) {
-		System.out.println(path+":File Not Found");
-		throw new UsageException();
-		}
-		return sc;
-	}
-
-	private static void read_data() throws UsageException{
+	private static void read_data() throws UnsupportedEncodingException, IOException, UsageException{
 		float x,y;
 		int id;
 		String name;
@@ -74,7 +31,7 @@ public class Main{
 		Taxi taxi;
 		Node node;
 
-		sc=safe_open(path+"/client.csv");
+		sc=new Scanner(new File(path+"/client.csv"));
 		sc.next();
 		line=sc.next().split(",");
 		x=Float.parseFloat(line[0]);
@@ -83,7 +40,7 @@ public class Main{
 		sc.close();
 
 		taxis = new ArrayList<Taxi>();
-		sc=safe_open(path+"/taxis.csv");
+		sc=new Scanner(new File(path+"/taxis.csv"));
 		sc.next();
 		while(sc.hasNext()){
 			line=sc.next().split(",");
@@ -95,32 +52,80 @@ public class Main{
 		}
 		sc.close();
 		
+		int i;
 		nodes = new ArrayList<Node>();
-		sc=safe_open(path+"/nodes.csv");
-		while(sc.hasNextLine()){
-			sc.next();
-			line=sc.next().split(",");
+//		sc=safe_open(path+"/nodes.csv", "ISO-8859-1");
+//		sc.next();
+		String charset = "ISO-8859-1";
+		InputStreamReader isr;
+		isr=new InputStreamReader (new FileInputStream(path+"/nodes1.csv"), charset);
+
+		BufferedReader in = new BufferedReader(isr);
+		in.readLine();
+		String ln;
+		ln=in.readLine();
+
+  	while( ln != null) { 
+			line=ln.split(",");
 			x=Float.parseFloat(line[0]);
 			y=Float.parseFloat(line[1]);
 			id=Integer.parseInt(line[2]);
-			name=line[3];
-			node = new Node(x,y,id,name);
+			name="";
+			/*	Just in case a name consists of ","		*/
+			for(i=3; i<line.length;i++)
+				name+=line[i];
+			node=new Node(x,y,id,name);
 			nodes.add(node);
+	  		System.out.println(name);
+			byte[] bb = name.getBytes("UTF-8");
+			for(byte b :bb)
+				System.out.print(b);
+			System.out.println();
+
+			name= new String(bb, "ASCII");
+			bb = name.getBytes("ISO-8859-1");
+			for(byte b :bb)
+				System.out.print(b);
+			System.out.println();
+	  		System.out.println(name);
+			ln=in.readLine();
 		}
-		sc.close();
+		in.close();
+	}
+
+	private static void _read_data_() throws UsageException{
+	try {read_data();}
+	catch(UnsupportedEncodingException e){
+		System.out.println(e.getMessage());
+		throw new UsageException();
+	}
+	catch(IOException e){
+		System.out.println(e.getMessage());
+		throw new UsageException();
+	}
 
 	}
 
 	public static void main(String[] args)
 	{
+		System.out.println(new java.io.File("").getAbsolutePath());
 	try{
 		if(args.length==0)
-			path="TN2016-CW1";
+			path="./TN2016-CW1";
 		else if(args.length==1)
 			path=args[0];
 		else
 			throw new UsageException();
-		read_data();
+		_read_data_();
+		client.FindClosestNode(nodes);
+		for(Taxi t : taxis){
+			t.FindClosestNode(nodes);
+		}
+		Node.findAdj(nodes);
+		for(Taxi t: taxis){
+			A_star Astar = new A_star (t.closestN, client.closestN, nodes);
+			Astar.ASearch();
+		}
 		System.out.println(client.x);
 		System.out.println(client.y);
 	}
