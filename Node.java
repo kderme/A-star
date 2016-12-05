@@ -10,6 +10,7 @@ public class Node extends Point{
 	public double hEuclDist;
 	public double gScore;
 	public double fScore;
+	double max_dist=0.0017; //We avoid distances of edges less than 170m
 	Edge parent;
 
 	
@@ -30,6 +31,11 @@ public class Node extends Point{
 		if(i+1<nodes.size()){
 			Node n=next(i,nodes);
 			if(n.name.equals(name)){
+				double d=this.distance(n);
+				if (d>max_dist){
+	//				System.out.println(d);
+					return;
+				}
 				Edge e1=new Edge(n);
 				Edge e2=new Edge(this);
 				adj.add(e1);
@@ -83,6 +89,11 @@ public class Node extends Point{
 		for (int j=i+1;j<nodes.size();j++){
 			n=nodes.get(j);
 			if(this.id==n.id && this.eq_noname(n)){
+				double d=this.distance(n);
+				if (d>max_dist){
+//					System.out.println(d);
+					continue;
+				}
 				Edge e1=new Edge(n);
 				Edge e2=new Edge(this);
 				adj.add(e1);

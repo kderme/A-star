@@ -27,14 +27,14 @@ public class A_star{
 		openQ.add(start);
 	}
 	
-	public void ASearch(){
+	public boolean ASearch(){
 		while(!openQ.isEmpty()){
 			Node current = openQ.poll();
 			closedSet.add(current);
 //			current.print();
 			if(current==target){
 				/*	TARGET FOUND	*/
-				return;
+				return true;
 			}
 			for(Edge e : current.adj){
 				Node neighbor=e.to;
@@ -64,6 +64,8 @@ public class A_star{
 			}
 			 closedSet.add(current);
 		}
+		
+		return false;
 	}
 	
 	private void init_nodes_distances(){
@@ -88,11 +90,11 @@ public class A_star{
 	}	
 	
 	public void print_path(PrintWriter writer, Client c, Taxi t){
-		writer.println(t.x+" "+t.y);
+		writer.println(t.x+","+t.y+",0");
 		for (Node n: path){
-			writer.println(n.x+" "+n.y);
+			writer.println(n.x+","+n.y+",0");
 		}
-		writer.println(c.x+" "+c.y);
+		writer.println(c.x+","+c.y+",0");
 	}
 	
 	public void print_path(){

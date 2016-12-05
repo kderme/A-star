@@ -6,7 +6,8 @@ public class Taxi extends Point{
 	public int id;
 	Node closestN;
 	boolean isbest;
-
+	boolean found=false;
+	
 	A_star Astar;
 
 	Taxi(double a, double b, int d){

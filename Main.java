@@ -20,7 +20,7 @@ public class Main{
 	private static Client client;
 	private static ArrayList<Taxi> taxis;
 	private static ArrayList<Node> nodes;
-
+	
 	private static void read_data() throws UnsupportedEncodingException, IOException, UsageException{
 		double x,y;
 		int id;
@@ -108,6 +108,11 @@ public class Main{
 			throw new UsageException();
 		
 		_read_data_();
+		
+		System.out.println("################################################");
+		System.out.println("#########   WELCOME TO TARIFAS-APP   ###########");
+		System.out.println("################################################");
+		
 		System.out.println("Client is at:");
 		client.print();
 		System.out.println("Taxis are at is at:");
@@ -129,23 +134,33 @@ public class Main{
 		}
 		
 		Node.findAdj(nodes);
-		
-		int i=1;
+		boolean all=true;
 		for(Taxi t: taxis){
 			System.out.println();
-			System.out.println("Searching path for Taxi "+i+"...");
+			System.out.println("Searching path for Taxi "+t.id+"...");
 			t.Astar = new A_star (t.closestN, client.closestN, nodes);
-			t.Astar.ASearch();
-			System.out.println("Creating path for Taxi "+i+"...");
-			t.Astar.path();	
+			if(!(t.found=t.Astar.ASearch())){
+				all=false;
+				System.out.println("Search failed for taxi "+t.id+"");
+				continue;
+			}
+			System.out.println("Creating path for Taxi "+t.id+"...");
+			t.Astar.path();
+			System.out.println("Path length "+t.Astar.path_length);
+			System.out.println("OK");
 //			t.Astar.print_path();
-			i++;
 		}
 		System.out.println();
-		System.out.println("All done.\nLets find the best taxi...");
+		if(all)
+			System.out.println("All done.\nLets find the best taxi...");
+		else
+			System.out.println("Failed to find route for some taxis!\n"
+					+ "You may want to give a bigger value for max_dist in Node.java.\n"
+					+ "This value is used to avoid creating too long edges\n"
+					+ "Lets find the best taxi from the succesfull...");
 		Taxi t=Taxi.best(taxis);
 		t.isbest=true;
-		System.out.println("Best Taxi had id "+t.id);
+		System.out.println("Best Taxi had id: "+t.id+" and path length:"+t.Astar.path_length);
 		System.out.println();
 		CreateKml();
 		System.out.println("You can find the kml output file at "+path+"/map.kml");
@@ -160,9 +175,10 @@ public class Main{
 	
 	static private String Placemark(int i){
 		String color=taxis.get(i).color();
+		int j=taxis.get(i).id;
 				return 
 				  "		<Placemark>\n"
-				+ "			<name>Taxi "+i+"</name>\n"
+				+ "			<name>Taxi "+j+"</name>\n"
 				+ "			<styleUrl>#"+color+"</styleUrl>\n"
 				+ "			<LineString>\n"
 				+ "				<altitudeMode>relative</altitudeMode>\n"
@@ -202,8 +218,11 @@ public class Main{
 		    
 		    writer.println(start);
 		    for(int i=0; i<taxis.size();i++){
+		    	Taxi t=taxis.get(i);
+		    	if(!t.found)
+		    		continue;
 		    	writer.println(Placemark(i));
-		    	taxis.get(i).Astar.print_path(writer,client,taxis.get(i));
+		    	t.Astar.print_path(writer,client,taxis.get(i));
 		    	writer.println(Placemark2);
 		    }
 		    writer.println(end);
