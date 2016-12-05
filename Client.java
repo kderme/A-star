@@ -3,13 +3,13 @@ import java.util.ArrayList;
  class Client extends Point{
 	Node closestN;
 	
-	public Client (float a, float b){
+	public Client (double a, double b){
 		super(a,b);
 	}
 	
 	void FindClosestNode(ArrayList<Node> Nodes){
-		float tempmin;
-		float min = this.distance(Nodes.get(0));
+		double tempmin;
+		double min = this.distance(Nodes.get(0));
 		closestN=Nodes.get(0);
 		for (Node node : Nodes) {
 			if ((tempmin=this.distance(node))<min){
@@ -17,8 +17,6 @@ import java.util.ArrayList;
 				closestN=node;
 			}
 		}
-		
-		closestN.isTarget=true;
 	}
 }
 

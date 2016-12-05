@@ -1,23 +1,25 @@
 import java.util.Comparator;
-import java.util.Comparator;
-
 
 public class Point {
-	public float x,y;
+	public double x,y;
 
-	Point(float a, float b){
+	Point(double a, double b){
 		x=a;
 		y=b;
 	}
 
-	public float distance(Point P){
-		float dx=P.x-x;
-		float dy=P.y-y;
-		return (float)Math.sqrt(dx*dx+dy*dy);
+	public double distance(Point P){
+		double dx=P.x-x;
+		double dy=P.y-y;
+		return (double)Math.sqrt(dx*dx+dy*dy);
 	}
 
 	public boolean eq_coord(Point two){
 		return two.x==x && two.y==y;
+	}
+	
+	public void print(){
+		System.out.println("  "+x+" "+y);
 	}
 	
 	static class xComparator implements Comparator<Point>
